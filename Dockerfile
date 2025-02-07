@@ -83,6 +83,25 @@ RUN { \
     libc6-arm64-cross \
     libc6-dev-arm64-cross \
     glibc-source; \
+    libgstreamer1.0-dev \
+    libgstreamer-plugins-base1.0-0 \
+    libgstreamer-plugins-base1.0-dev \
+    libgstreamer-plugins-bad1.0-0 \
+    libgstreamer-plugins-bad1.0-dev \
+    gstreamer1.0-plugins-ugly \
+    gstreamer1.0-tools \
+    gstreamer1.0-pipewire \
+    gstreamer1.0-qt6 \
+    gstreamer1.0-gl \
+    gstreamer1.0-gtk3 \
+    gstreamer1.0-libcamera \
+    gstreamer1.0-plugins-bad \
+    gstreamer1.0-plugins-base \
+    gstreamer1.0-plugins-good \
+    gstreamer1.0-libav \
+    gstreamer1.0-vaapi \
+    zlib1g \
+    zlib1g-dev \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*; \
 } 2>&1 | tee -a /build.log
