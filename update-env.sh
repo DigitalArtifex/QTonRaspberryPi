@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # Build extended sysroot
-if [ -d "sysroot" ]; then
-    cd sysroot
-    tar cfz ../sysroot.tar.gz ./*
+if [ -d "sysroot-ext" ]; then
+    cd sysroot-ext
+    tar cfz ../sysroot-ext.tar.gz ./*
     cd ../
 fi
 

@@ -113,13 +113,13 @@ WORKDIR /build
 RUN mkdir sysroot sysroot/usr sysroot/opt
 
 # Copy base Raspberry Pi sysroot tarball (if available)
-COPY rasp.tar.gz /build/rasp.tar.gz
-RUN tar xvfz /build/rasp.tar.gz -C /build/sysroot
+COPY sysroot-base.tar.gz /build/sysroot-base.tar.gz
+RUN tar xvfz /build/sysroot-base.tar.gz -C /build/sysroot
 
 # Copy extended Raspberry Pi sysroot tarball (if available)
 # This is useful for adding binaries produced with this image to the sysroot
-COPY sysroot.tar.gz /build/sysroot.tar.gz
-RUN tar xvfz /build/sysroot.tar.gz -C /build/sysroot
+COPY sysroot-ext.tar.gz /build/sysroot-ext.tar.gz
+RUN tar xvfz /build/sysroot-ext.tar.gz -C /build/sysroot
 
 # Copy the toolchain file
 COPY toolchain.cmake /build/
