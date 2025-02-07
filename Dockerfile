@@ -112,9 +112,14 @@ WORKDIR /build
 # Create sysroot directory
 RUN mkdir sysroot sysroot/usr sysroot/opt
 
-# Copy Raspberry Pi sysroot tarball (if available)
+# Copy base Raspberry Pi sysroot tarball (if available)
 COPY rasp.tar.gz /build/rasp.tar.gz
 RUN tar xvfz /build/rasp.tar.gz -C /build/sysroot
+
+# Copy extended Raspberry Pi sysroot tarball (if available)
+# This is useful for adding binaries produced with this image to the sysroot
+COPY sysroot.tar.gz /build/sysroot.tar.gz
+RUN tar xvfz /build/sysroot.tar.gz -C /build/sysroot
 
 # Copy the toolchain file
 COPY toolchain.cmake /build/
@@ -285,6 +290,17 @@ RUN { \
 
 RUN tar -czvf qt-host-binaries.tar.gz -C /build/qt6/host .
 RUN tar -czvf qt-pi-binaries.tar.gz -C /build/qt6/pi .
+
+RUN rm ../src/qtbase-everywhere-src-6.8.1.tar.xz && \
+    rm ../src/qtshadertools-everywhere-src-6.8.1.tar.xz && \
+    rm ../src/qtdeclarative-everywhere-src-6.8.1.tar.xz && \
+    rm ../src/qt5compat-everywhere-src-6.8.1.tar.xz && \
+    rm ../src/qtmultimedia-everywhere-src-6.8.1.tar.xz && \
+    rm ../src/qtwebsockets-everywhere-src-6.8.1.tar.xz && \
+    rm ../src/qtvirtualkeyboard-everywhere-src-6.8.1.tar.xz && \
+    rm ../src/qtgraphs-everywhere-src-6.8.1.tar.xz && \
+    rm ../src/qtcharts-everywhere-src-6.8.1.tar.xz && \
+    rm ../src/qtimageformats-everywhere-src-6.8.1.tar.xz && \
 
 # Set up project directory
 RUN mkdir /build/project
