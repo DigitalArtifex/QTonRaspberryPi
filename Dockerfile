@@ -291,6 +291,7 @@ RUN { \
 RUN tar -czvf qt-host-binaries.tar.gz -C /build/qt6/host .
 RUN tar -czvf qt-pi-binaries.tar.gz -C /build/qt6/pi .
 
+# Cleanup tarballs
 RUN rm ../src/qtbase-everywhere-src-6.8.1.tar.xz && \
     rm ../src/qtshadertools-everywhere-src-6.8.1.tar.xz && \
     rm ../src/qtdeclarative-everywhere-src-6.8.1.tar.xz && \
@@ -301,14 +302,3 @@ RUN rm ../src/qtbase-everywhere-src-6.8.1.tar.xz && \
     rm ../src/qtgraphs-everywhere-src-6.8.1.tar.xz && \
     rm ../src/qtcharts-everywhere-src-6.8.1.tar.xz && \
     rm ../src/qtimageformats-everywhere-src-6.8.1.tar.xz && \
-
-# Set up project directory
-RUN mkdir /build/project
-COPY project /build/project
-
-# Build the project using Qt for Raspberry Pi
-RUN { \
-    cd /build/project && \
-    /build/qt6/pi/bin/qt-cmake . && \
-    cmake --build .; \
-} 2>&1 | tee -a /build.log
