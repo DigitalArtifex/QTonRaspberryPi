@@ -1,3 +1,4 @@
 output/*
 rasp.tar.gz
+sysroot.tar.gz
 build.log
