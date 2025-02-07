@@ -1,15 +1,12 @@
-FROM qtcrossbuild:latest
+FROM qtcrossbuild-env:latest
 
-# Update the repoPath according to yours
-ARG projectDir=project
-ARG repoPath=/home/ulas/QTonRaspberryPi/
+# Set up project directory
+RUN mkdir /build/project
+COPY project /build/project
 
-RUN rm -rf $repoPath$projectDir
-
-RUN mkdir -p $repoPath$projectDir
-
-COPY $projectDir $repoPath$projectDir
-
-RUN cd $repoPath$projectDir && \
-    /build/qt6/pi/bin/qt-cmake . -DCMAKE_BUILD_TYPE=Debug && \
-    cmake --build .
+# Build the project using Qt for Raspberry Pi
+RUN { \
+    cd /build/project && \
+    /build/qt6/pi/bin/qt-cmake . && \
+    cmake --build .; \
+} 2>&1 | tee -a /build.log
