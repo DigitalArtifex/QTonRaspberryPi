@@ -135,12 +135,17 @@ RUN { \
 } 2>&1 | tee -a /build.log
 
 RUN { \
+    mkdir qt6 qt6/src; \
+}
+COPY submodules/qtgraphs-everywhere-src-6.8.1.tar.gz /build/qt6/src
+
+RUN { \
     set -e && \
     echo "Fix symbollic link" && \
     wget https://raw.githubusercontent.com/riscv/riscv-poky/master/scripts/sysroot-relativelinks.py && \
     chmod +x sysroot-relativelinks.py && \
     python3 sysroot-relativelinks.py /build/sysroot && \
-    mkdir -p qt6 qt6/host qt6/pi qt6/host-build qt6/pi-build qt6/src && \
+    mkdir -p qt6/host qt6/pi qt6/host-build qt6/pi-build && \
     cd qt6/src && \
     wget https://download.qt.io/official_releases/qt/6.8/6.8.1/submodules/qtbase-everywhere-src-6.8.1.tar.xz && \
     wget https://download.qt.io/official_releases/qt/6.8/6.8.1/submodules/qtshadertools-everywhere-src-6.8.1.tar.xz && \
@@ -152,6 +157,11 @@ RUN { \
     wget https://download.qt.io/official_releases/qt/6.8/6.8.1/submodules/qtgraphs-everywhere-src-6.8.1.tar.xz && \
     wget https://download.qt.io/official_releases/qt/6.8/6.8.1/submodules/qtcharts-everywhere-src-6.8.1.tar.xz && \
     wget https://download.qt.io/official_releases/qt/6.8/6.8.1/submodules/qtimageformats-everywhere-src-6.8.1.tar.xz && \
+    wget https://download.qt.io/official_releases/qt/6.8/6.8.1/submodules/qt3d-everywhere-src-6.8.1.tar.xz && \
+    wget https://download.qt.io/official_releases/qt/6.8/6.8.1/submodules/qttools-everywhere-src-6.8.1.tar.xz && \
+    wget https://download.qt.io/official_releases/qt/6.8/6.8.1/submodules/qtquick3d-everywhere-src-6.8.1.tar.xz && \
+    wget https://download.qt.io/official_releases/qt/6.8/6.8.1/submodules/qtsvg-everywhere-src-6.8.1.tar.xz && \
+    wget https://download.qt.io/official_releases/qt/6.8/6.8.1/submodules/qtsensors-everywhere-src-6.8.1.tar.xz && \
     cd ../host-build && \
     tar xf ../src/qtbase-everywhere-src-6.8.1.tar.xz && \
     tar xf ../src/qtshadertools-everywhere-src-6.8.1.tar.xz && \
@@ -163,12 +173,24 @@ RUN { \
     tar xf ../src/qtgraphs-everywhere-src-6.8.1.tar.xz && \
     tar xf ../src/qtcharts-everywhere-src-6.8.1.tar.xz && \
     tar xf ../src/qtimageformats-everywhere-src-6.8.1.tar.xz && \
+    tar xf ../src/qt3d-everywhere-src-6.8.1.tar.xz && \
+    tar xf ../src/qttools-everywhere-src-6.8.1.tar.xz && \
+    tar xf ../src/qtquick3d-everywhere-src-6.8.1.tar.xz && \
+    tar xf ../src/qtsvg-everywhere-src-6.8.1.tar.xz && \
+    tar xf ../src/qtsensors-everywhere-src-6.8.1.tar.xz && \
     echo "Compile qtbase for host" && \
     cd qtbase-everywhere-src-6.8.1 && \
     cmake -GNinja -DCMAKE_BUILD_TYPE=Release \
         -DQT_BUILD_EXAMPLES=OFF \
         -DQT_BUILD_TESTS=OFF \
+        -DQT_FEATURE_graphs_2d=ON \
+        -DQT_FEATURE_graphs_3d=ON \
         -DCMAKE_INSTALL_PREFIX=/build/qt6/host && \
+    cmake --build . --parallel 4 && \
+    cmake --install . && \
+    echo "Compile tools for host" && \
+    cd ../qttools-everywhere-src-6.8.1 && \
+    /build/qt6/host/bin/qt-configure-module . && \
     cmake --build . --parallel 4 && \
     cmake --install . && \
     echo "Compile shader for host" && \
@@ -178,6 +200,21 @@ RUN { \
     cmake --install . && \
     echo "Compile declerative for host" && \
     cd ../qtdeclarative-everywhere-src-6.8.1 && \
+    /build/qt6/host/bin/qt-configure-module . && \
+    cmake --build . --parallel 4 && \
+    cmake --install . && \
+    echo "Compile 3d for host" && \
+    cd ../qt3d-everywhere-src-6.8.1 && \
+    /build/qt6/host/bin/qt-configure-module . && \
+    cmake --build . --parallel 4 && \
+    cmake --install . && \
+    echo "Compile Quick 3d for host" && \
+    cd ../qtquick3d-everywhere-src-6.8.1 && \
+    /build/qt6/host/bin/qt-configure-module . && \
+    cmake --build . --parallel 4 && \
+    cmake --install . && \
+    echo "Compile graphs for host" && \
+    cd ../qtgraphs-everywhere-src-6.8.1 && \
     /build/qt6/host/bin/qt-configure-module . && \
     cmake --build . --parallel 4 && \
     cmake --install . && \
@@ -201,18 +238,23 @@ RUN { \
     /build/qt6/host/bin/qt-configure-module . && \
     cmake --build . --parallel 4 && \
     cmake --install . && \
-    echo "Compile graphs for host" && \
-    cd ../qtgraphs-everywhere-src-6.8.1 && \
-    /build/qt6/host/bin/qt-configure-module . && \
-    cmake --build . --parallel 4 && \
-    cmake --install . && \
     echo "Compile charts for host" && \
     cd ../qtcharts-everywhere-src-6.8.1 && \
     /build/qt6/host/bin/qt-configure-module . && \
     cmake --build . --parallel 4 && \
     cmake --install . && \
+    echo "Compile svg formats for host" && \
+    cd ../qtsvg-everywhere-src-6.8.1 && \
+    /build/qt6/host/bin/qt-configure-module . && \
+    cmake --build . --parallel 4 && \
+    cmake --install . && \
     echo "Compile image formats for host" && \
     cd ../qtimageformats-everywhere-src-6.8.1 && \
+    /build/qt6/host/bin/qt-configure-module . && \
+    cmake --build . --parallel 4 && \
+    cmake --install . && \
+    echo "Compile sensors for host" && \
+    cd ../qtsensors-everywhere-src-6.8.1 && \
     /build/qt6/host/bin/qt-configure-module . && \
     cmake --build . --parallel 4 && \
     cmake --install . && \
@@ -227,6 +269,11 @@ RUN { \
     tar xf ../src/qtgraphs-everywhere-src-6.8.1.tar.xz && \
     tar xf ../src/qtcharts-everywhere-src-6.8.1.tar.xz && \
     tar xf ../src/qtimageformats-everywhere-src-6.8.1.tar.xz && \
+    tar xf ../src/qt3d-everywhere-src-6.8.1.tar.xz && \
+    tar xf ../src/qttools-everywhere-src-6.8.1.tar.xz && \
+    tar xf ../src/qtquick3d-everywhere-src-6.8.1.tar.xz && \
+    tar xf ../src/qtsvg-everywhere-src-6.8.1.tar.xz && \
+    tar xf ../src/qtsensors-everywhere-src-6.8.1.tar.xz && \
     echo "Compile qtbase for rasp" && \
     cd qtbase-everywhere-src-6.8.1 && \
     cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DINPUT_opengl=es2 \
@@ -237,51 +284,78 @@ RUN { \
         -DCMAKE_TOOLCHAIN_FILE=/build/toolchain.cmake \
         -DQT_FEATURE_xcb=ON -DFEATURE_xcb_xlib=ON \
         -DFEATURE_sql_psql=ON \
+        -DQT_FEATURE_graphs_2d=ON \
+        -DQT_FEATURE_graphs_3d=ON \
         -DQT_FEATURE_xlib=ON && \
     cmake --build . --parallel 4 && \
     cmake --install . && \
-    echo "Compile shader for rasp" && \
+    echo "Compile tools for host" && \
+    cd ../qttools-everywhere-src-6.8.1 && \
+    /build/qt6/pi/bin/qt-configure-module . && \
+    cmake --build . --parallel 4 && \
+    cmake --install . && \
+    echo "Compile shader for host" && \
     cd ../qtshadertools-everywhere-src-6.8.1 && \
     /build/qt6/pi/bin/qt-configure-module . && \
     cmake --build . --parallel 4 && \
     cmake --install . && \
-    echo "Compile declerative for rasp" && \
+    echo "Compile declerative for host" && \
     cd ../qtdeclarative-everywhere-src-6.8.1 && \
     /build/qt6/pi/bin/qt-configure-module . && \
     cmake --build . --parallel 4 && \
     cmake --install . && \
-    echo "Compile Qt5Compat for rasp" && \
-    cd ../qt5compat-everywhere-src-6.8.1 && \
+    echo "Compile 3d for host" && \
+    cd ../qt3d-everywhere-src-6.8.1 && \
     /build/qt6/pi/bin/qt-configure-module . && \
     cmake --build . --parallel 4 && \
     cmake --install . && \
-    echo "Compile QtMultimedia for rasp" && \
-    cd ../qtmultimedia-everywhere-src-6.8.1 && \
+    echo "Compile Quick 3d for host" && \
+    cd ../qtquick3d-everywhere-src-6.8.1 && \
     /build/qt6/pi/bin/qt-configure-module . && \
     cmake --build . --parallel 4 && \
     cmake --install . && \
-    echo "Compile websockets for rasp" && \
-    cd ../qtwebsockets-everywhere-src-6.8.1 && \
-    /build/qt6/pi/bin/qt-configure-module . && \
-    cmake --build . --parallel 4 && \
-    cmake --install . && \
-    echo "Compile virtual keyboard for rasp" && \
-    cd ../qtvirtualkeyboard-everywhere-src-6.8.1 && \
-    /build/qt6/pi/bin/qt-configure-module . && \
-    cmake --build . --parallel 4 && \
-    cmake --install . && \
-    echo "Compile graphs for rasp" && \
+    echo "Compile graphs for host" && \
     cd ../qtgraphs-everywhere-src-6.8.1 && \
     /build/qt6/pi/bin/qt-configure-module . && \
     cmake --build . --parallel 4 && \
     cmake --install . && \
-    echo "Compile charts for rasp" && \
+    echo "Compile Qt5Compat for host" && \
+    cd ../qt5compat-everywhere-src-6.8.1 && \
+    /build/qt6/pi/bin/qt-configure-module . && \
+    cmake --build . --parallel 4 && \
+    cmake --install . && \
+    echo "Compile multimedia for host" && \
+    cd ../qtmultimedia-everywhere-src-6.8.1 && \
+    /build/qt6/pi/bin/qt-configure-module . && \
+    cmake --build . --parallel 4 && \
+    cmake --install . && \
+    echo "Compile websockets for host" && \
+    cd ../qtwebsockets-everywhere-src-6.8.1 && \
+    /build/qt6/pi/bin/qt-configure-module . && \
+    cmake --build . --parallel 4 && \
+    cmake --install . && \
+    echo "Compile virtual keyboard for host" && \
+    cd ../qtvirtualkeyboard-everywhere-src-6.8.1 && \
+    /build/qt6/pi/bin/qt-configure-module . && \
+    cmake --build . --parallel 4 && \
+    cmake --install . && \
+    echo "Compile charts for host" && \
     cd ../qtcharts-everywhere-src-6.8.1 && \
     /build/qt6/pi/bin/qt-configure-module . && \
     cmake --build . --parallel 4 && \
     cmake --install . && \
-    echo "Compile image formats for rasp" && \
+    echo "Compile svg formats for host" && \
+    cd ../qtsvg-everywhere-src-6.8.1 && \
+    /build/qt6/pi/bin/qt-configure-module . && \
+    cmake --build . --parallel 4 && \
+    cmake --install . && \
+    echo "Compile image formats for host" && \
     cd ../qtimageformats-everywhere-src-6.8.1 && \
+    /build/qt6/pi/bin/qt-configure-module . && \
+    cmake --build . --parallel 4 && \
+    cmake --install . && \
+    echo "Compile sensors for host" && \
+    cd ../qtsensors-everywhere-src-6.8.1 && \
     /build/qt6/pi/bin/qt-configure-module . && \
     cmake --build . --parallel 4 && \
     cmake --install . && \
@@ -290,15 +364,3 @@ RUN { \
 
 RUN tar -czvf qt-host-binaries.tar.gz -C /build/qt6/host .
 RUN tar -czvf qt-pi-binaries.tar.gz -C /build/qt6/pi .
-
-# Cleanup tarballs
-RUN rm ../src/qtbase-everywhere-src-6.8.1.tar.xz && \
-    rm ../src/qtshadertools-everywhere-src-6.8.1.tar.xz && \
-    rm ../src/qtdeclarative-everywhere-src-6.8.1.tar.xz && \
-    rm ../src/qt5compat-everywhere-src-6.8.1.tar.xz && \
-    rm ../src/qtmultimedia-everywhere-src-6.8.1.tar.xz && \
-    rm ../src/qtwebsockets-everywhere-src-6.8.1.tar.xz && \
-    rm ../src/qtvirtualkeyboard-everywhere-src-6.8.1.tar.xz && \
-    rm ../src/qtgraphs-everywhere-src-6.8.1.tar.xz && \
-    rm ../src/qtcharts-everywhere-src-6.8.1.tar.xz && \
-    rm ../src/qtimageformats-everywhere-src-6.8.1.tar.xz && \
