@@ -1,4 +1,4 @@
 output/*
-rasp.tar.gz
-sysroot.tar.gz
+sysroot-base.tar.gz
+sysroot-ext.tar.gz
 build.log
