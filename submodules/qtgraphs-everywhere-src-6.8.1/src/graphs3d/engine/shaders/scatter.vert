@@ -1,7 +1,0 @@
-VARYING vec3 pos;
-
-void MAIN()
-{
-    pos = VERTEX;
-    POSITION = MODELVIEWPROJECTION_MATRIX * vec4(VERTEX, 1.0);
-}

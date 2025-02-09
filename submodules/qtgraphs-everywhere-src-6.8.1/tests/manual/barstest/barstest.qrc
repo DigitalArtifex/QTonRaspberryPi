@@ -1,6 +1,0 @@
-<RCC>
-    <qresource prefix="/">
-        <file>shuttle.mesh</file>
-        <file>shuttle.png</file>
-    </qresource>
-</RCC>
